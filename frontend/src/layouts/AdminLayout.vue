@@ -1,0 +1,2 @@
+<script setup lang="ts">import { useRouter } from 'vue-router'; import { useAuthStore } from '@/modules/identity/stores/auth'; const auth = useAuthStore(); const router = useRouter(); async function logout() { await auth.logout(); router.push('/login') }</script>
+<template><v-app-bar color="primary"><v-app-bar-title>Taller Mecánico</v-app-bar-title><v-btn to="/admin/users">Usuarios</v-btn><v-btn to="/admin/roles">Roles</v-btn><v-btn @click="logout">Salir</v-btn></v-app-bar><v-container class="mt-12"><slot /></v-container></template>

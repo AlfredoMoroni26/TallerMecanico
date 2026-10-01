@@ -1,0 +1,37 @@
+Actua como un desarrollador de software senior full stack, necesito que me ayudes a construir una aplicacion web modular con lo siguiente:
+
+Frontend: Vue 3, Vuetify 3 y TypeScript, con Axios para consumir la API
+Backend: FastAPI (Python)
+
+El sistema se va a dividir por modulos:
+
+Modulo 1: Identidad (Usuarios y Roles)
+
+En este modulo se priorizara 
+-Autenticacion
+-Autorizacion
+-Gestion de usuarios y roles
+-Manejo de sesiones
+-Recuperación de contraseña
+-Seguridad
+
+Reglas de negocio:
+
+1.-Las contraseñas deben almacenarse con hash seguro me gustaria que fuese en bcrypt ten en cuenta que nunca debe ser en texto plano
+2.-El usuario solo puede iniciar sesión desde la pantalla de login
+3.-El registro de usuarios no debe duplicarse se debe el validar correo y nombre de usuario unico
+4.-Si ocurre un error, el usuario debe ser informado con mensajes claros y comprensibles sin bulnerar informacion sensible
+5.-Todas las validaciones deben hacerse tanto en el frontend  como en el backend 
+6.-Los roles requeridos deben de ser: Admnistrador de taller, recepcionista,accesor de servicio,tecnico, cliente y sistema
+
+Mi resultado esperado:
+
+-Estructura de carpetas propuesta para frontend y backend, pensada para escalar por modulos
+-Modelos de base de datos es decir usuarios, roles, sesiones, tokens de recuperacion
+-Endpoints de la API es decir un CRUD de usuarios y roles
+-Implementación de autenticacion con JWT y control de acceso por roles
+-Interceptores de Axios para manejo de tokens y errores globales
+-Pantallas en Vue: login, registro, recuperar contraseña, y administración de usuarios y roles
+-Codigo completo, tipado, comentado y siguiendo buenas prcaticas tomando en cuenta separacion de capas, manejo de errores, variables de entorno
+
+Debes entregarlo paso a paso es decir primero la estructura y el diseño, luego el backend y despues el frontend

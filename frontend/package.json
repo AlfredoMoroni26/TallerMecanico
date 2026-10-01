@@ -1,0 +1,8 @@
+{
+  "name": "taller-mecanico-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": { "dev": "vite", "build": "vue-tsc --noEmit && vite build", "preview": "vite preview" },
+  "dependencies": { "@mdi/font": "^7.4.47", "axios": "^1.7.7", "pinia": "^2.2.2", "vue": "^3.5.3", "vue-router": "^4.4.5", "vuetify": "^3.7.1" },
+  "devDependencies": { "@types/node": "^22.5.4", "@vitejs/plugin-vue": "^5.1.4", "typescript": "^5.5.4", "vite": "^5.4.3", "vue-tsc": "^2.1.6" }
+}
