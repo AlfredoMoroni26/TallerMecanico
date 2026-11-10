@@ -30,9 +30,12 @@ class Client(Base):
     __table_args__ = (UniqueConstraint("first_name", "paternal_last_name", "maternal_last_name", "phone", name="uq_client_identity_phone"),)
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     workshop_id: Mapped[str] = mapped_column(ForeignKey("workshops.id"), nullable=False, index=True)
-    first_name: Mapped[str] = mapped_column(String(80, collation="NOCASE"), nullable=False)
-    paternal_last_name: Mapped[str] = mapped_column(String(80, collation="NOCASE"), nullable=False)
-    maternal_last_name: Mapped[str] = mapped_column(String(80, collation="NOCASE"), nullable=False)
+    # ``NOCASE`` es una colación exclusiva de SQLite y hace fallar el DDL en
+    # PostgreSQL. La comparación sin distinción entre mayúsculas se aplica en
+    # el servicio mediante ``func.lower``, compatible con ambas bases de datos.
+    first_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    paternal_last_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    maternal_last_name: Mapped[str] = mapped_column(String(80), nullable=False)
     phone: Mapped[str] = mapped_column(String(15), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, index=True)
     rfc: Mapped[str | None] = mapped_column(String(13), nullable=True, unique=True, index=True)
