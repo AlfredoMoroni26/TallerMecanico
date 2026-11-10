@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
     role_ids: list[str] = Field(default_factory=list)
+    workshop_id: str | None = None
 
     @field_validator("password")
     @classmethod
@@ -24,6 +25,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     is_active: bool | None = None
     role_ids: list[str] | None = None
+    workshop_id: str | None = None
 
 
 class UserRead(BaseModel):
@@ -31,6 +33,7 @@ class UserRead(BaseModel):
     username: str
     email: EmailStr
     is_active: bool
+    workshop_id: str | None
     created_at: datetime
     roles: list[RoleRead]
 

@@ -1,16 +1,18 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.exceptions import DomainError
 from app.core.security import create_token, decode_token, hash_password, token_digest, verify_password
 from app.modules.identity.models import PasswordResetToken, Role, Session as UserSession, User
+from app.modules.workshops.models import Workshop
 from app.modules.identity.schemas.auth import TokenPair
-from app.modules.identity.schemas.role import RoleCreate, RoleUpdate
+from app.modules.identity.schemas.role import RoleCreate, RoleRename, RoleUpdate
 from app.modules.identity.schemas.user import UserCreate, UserUpdate
+from app.modules.identity.services.status_migration import ACTIVE_STATUS_ID, SUSPENDED_STATUS_ID
 
 DEFAULT_ROLES = [
     ("administrador_taller", "Administración integral del taller"),
@@ -24,7 +26,7 @@ DEFAULT_ROLES = [
 
 def seed_roles(db: Session) -> None:
     if db.scalar(select(Role.id).limit(1)) is None:
-        db.add_all([Role(name=name, description=description, is_system=True) for name, description in DEFAULT_ROLES])
+        db.add_all([Role(id_rol=index, name=name, description=description, is_system=True) for index, (name, description) in enumerate(DEFAULT_ROLES, start=1)])
         db.commit()
 
 
@@ -59,7 +61,12 @@ def create_user(db: Session, data: UserCreate, allow_roles: bool = False) -> Use
     roles = _roles_by_ids(db, data.role_ids)
     if not allow_roles:
         roles = list(db.scalars(select(Role).where(Role.name == "cliente")))
-    user = User(username=data.username, email=data.email.lower(), password_hash=hash_password(data.password), roles=roles)
+    workshop_id = data.workshop_id if allow_roles else None
+    if workshop_id and not db.get(Workshop, workshop_id):
+        raise DomainError("El taller seleccionado no existe.", 422)
+    if allow_roles and any(role.name in {"administrador_taller", "recepcionista"} for role in roles) and not workshop_id:
+        raise DomainError("Administrador y recepcionista requieren un taller asignado.", 422)
+    user = User(username=data.username, email=data.email.lower(), password_hash=hash_password(data.password), roles=roles, workshop_id=workshop_id)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -83,6 +90,12 @@ def update_user(db: Session, user: User, data: UserUpdate) -> User:
         user.is_active = values["is_active"]
     if "role_ids" in values:
         user.roles = _roles_by_ids(db, values["role_ids"])
+    if "workshop_id" in values:
+        if values["workshop_id"] and not db.get(Workshop, values["workshop_id"]):
+            raise DomainError("El taller seleccionado no existe.", 422)
+        user.workshop_id = values["workshop_id"]
+    if any(role.name in {"administrador_taller", "recepcionista"} for role in user.roles) and not user.workshop_id:
+        raise DomainError("Administrador y recepcionista requieren un taller asignado.", 422)
     db.commit()
     db.refresh(user)
     return user
@@ -90,9 +103,31 @@ def update_user(db: Session, user: User, data: UserUpdate) -> User:
 
 def create_role(db: Session, data: RoleCreate) -> Role:
     if db.scalar(select(Role).where(Role.name == data.name)):
-        raise DomainError("El nombre del rol ya existe.", 409)
-    role = Role(**data.model_dump())
+        raise DomainError("El rol ya está registrado.", 409)
+    next_id = (db.scalar(select(func.max(Role.id_rol))) or 0) + 1
+    role = Role(id_rol=next_id, **data.model_dump())
     db.add(role); db.commit(); db.refresh(role)
+    return role
+
+
+def rename_role(db: Session, role: Role, data: RoleRename) -> Role:
+    duplicate = db.scalar(select(Role).where(Role.name == data.name, Role.id != role.id))
+    if duplicate:
+        raise DomainError("El rol ya está registrado.", 409)
+    role.name = data.name
+    db.commit(); db.refresh(role)
+    return role
+
+
+def suspend_role(db: Session, role: Role) -> Role:
+    role.id_estatus = SUSPENDED_STATUS_ID
+    db.commit(); db.refresh(role)
+    return role
+
+
+def activate_role(db: Session, role: Role) -> Role:
+    role.id_estatus = ACTIVE_STATUS_ID
+    db.commit(); db.refresh(role)
     return role
 
 
@@ -106,7 +141,7 @@ def update_role(db: Session, role: Role, data: RoleUpdate) -> Role:
 
 def issue_tokens(db: Session, user: User, user_agent: str | None = None) -> TokenPair:
     settings = get_settings()
-    access = create_token(user.id, "access", timedelta(minutes=settings.access_token_expire_minutes), [r.name for r in user.roles])
+    access = create_token(user.id, "access", timedelta(minutes=settings.access_token_expire_minutes), [r.name for r in user.roles if r.id_estatus == ACTIVE_STATUS_ID])
     refresh = create_token(user.id, "refresh", timedelta(days=settings.refresh_token_expire_days))
     db.add(UserSession(user_id=user.id, refresh_token_hash=token_digest(refresh), expires_at=datetime.now(UTC) + timedelta(days=settings.refresh_token_expire_days), user_agent=(user_agent or "")[:255]))
     db.commit()

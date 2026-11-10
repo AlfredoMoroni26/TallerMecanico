@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table, UniqueConstraint, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -16,10 +16,20 @@ user_roles = Table(
 class Role(Base):
     __tablename__ = "roles"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id_rol: Mapped[int] = mapped_column(Integer, unique=True, nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(80), unique=True, nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(String(255))
     is_system: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    id_estatus: Mapped[int] = mapped_column(ForeignKey("estatus.id_estatus"), default=1, nullable=False, index=True)
+    estatus: Mapped["Status"] = relationship(back_populates="roles", lazy="joined")
     users: Mapped[list["User"]] = relationship(secondary=user_roles, back_populates="roles")
+
+
+class Status(Base):
+    __tablename__ = "estatus"
+    id_estatus: Mapped[int] = mapped_column(primary_key=True)
+    nombre_estatus: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
+    roles: Mapped[list[Role]] = relationship(back_populates="estatus")
 
 
 class User(Base):
@@ -29,6 +39,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    workshop_id: Mapped[str | None] = mapped_column(ForeignKey("workshops.id"), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     roles: Mapped[list[Role]] = relationship(secondary=user_roles, back_populates="users", lazy="selectin")

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orquestador del proyecto"
+  short_description: "Orquesta tareas según las guías del proyecto"
+  default_prompt: "Usa $orquestador para analizar e implementar esta solicitud respetando el proyecto."
+
+policy:
+  allow_implicit_invocation: false

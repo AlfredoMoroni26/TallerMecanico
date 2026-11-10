@@ -8,8 +8,12 @@ const routes = [
   { path: '/login', component: () => import('@/modules/identity/views/LoginView.vue') },
   { path: '/register', component: () => import('@/modules/identity/views/RegisterView.vue') },
   { path: '/forgot-password', component: () => import('@/modules/identity/views/ForgotPasswordView.vue') },
-  { path: '/admin/users', component: () => import('@/modules/identity/views/UsersAdminView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller'] } },
-  { path: '/admin/roles', component: () => import('@/modules/identity/views/RolesAdminView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller'] } },
+  { path: '/admin/users', component: () => import('@/modules/identity/views/UsersManagementView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller'] } },
+  { path: '/admin/roles', component: () => import('@/modules/identity/views/ManageRolesView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller'] } },
+  { path: '/admin/roles/create', component: () => import('@/modules/identity/views/CreateRoleView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller'] } },
+  { path: '/workshops/new', component: () => import('@/modules/workshops/views/CreateWorkshopView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller', 'recepcionista', 'secretaria'] } },
+  { path: '/clients', component: () => import('@/modules/workshops/views/ClientsManagementView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller', 'recepcionista'] } },
+  { path: '/vehicles/new', component: () => import('@/modules/workshops/views/CreateVehicleView.vue'), meta: { requiresAuth: true, roles: ['administrador_taller', 'recepcionista'] } },
 ]
 const router = createRouter({ history: createWebHistory(), routes })
 router.beforeEach(async (to: RouteLocationNormalized) => {

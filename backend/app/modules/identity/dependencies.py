@@ -9,6 +9,7 @@ from app.core.exceptions import DomainError
 from app.core.security import decode_token
 from app.db.session import get_db
 from app.modules.identity.models import User
+from app.modules.identity.services.status_migration import ACTIVE_STATUS_ID
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -30,7 +31,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(
 
 def require_roles(*allowed_roles: str) -> Callable:
     def check(user: User = Depends(get_current_user)) -> User:
-        if not set(allowed_roles).intersection(role.name for role in user.roles):
+        if not set(allowed_roles).intersection(role.name for role in user.roles if role.id_estatus == ACTIVE_STATUS_ID):
             raise DomainError("No tienes permiso para realizar esta acción.", 403)
         return user
     return check
