@@ -28,6 +28,7 @@ Antes de analizar, diseñar, implementar o documentar, identifica el tipo de sol
 | [`spec/frontend/skill-vue.md`](../frontend/skill-vue.md) | Guía de desarrollo Vue 3 y TypeScript. | Al modificar frontend, componentes, vistas, rutas, formularios o consumo de API. |
 | [`spec/documentacion/frontend/skill-documentacion.md`](../documentacion/frontend/skill-documentacion.md) | Guía para documentar el frontend. | Al crear o actualizar documentación del frontend. |
 | [`spec/documentacion/backend/skill-documentacion.md`](../documentacion/backend/skill-documentacion.md) | Guía para documentar el backend. | Al crear o actualizar documentación del backend. |
+| [`spec/skills/auditoria/SKILL.md`](../skills/auditoria/SKILL.md) | Auditoría verificable de seguridad y salud técnica del proyecto. | Al solicitar una auditoría de seguridad, revisión de vulnerabilidades o generación de reportes de auditoría. |
 | [`fase crear roles.md/fase_2_crear_roles.md`](../../fase%20crear%20roles.md/fase_2_crear_roles.md) | Especificación funcional de creación de roles. | Cuando la solicitud afecte la creación de roles. |
 | [`fase administrar roles.md/fase_administrar_roles.md`](../../fase%20administrar%20roles.md/fase_administrar_roles.md) | Especificación funcional de administración de roles. | Cuando la solicitud afecte consulta, cambio de nombre, suspensión o activación de roles. |
 | [`fase taller mecánico.md/fase_taller_mecanico.md`](../../fase%20taller%20mecánico.md/fase_taller_mecanico.md) | Especificación funcional de alta de talleres. | Cuando la solicitud afecte el registro de talleres. |
@@ -52,6 +53,7 @@ Antes de analizar, diseñar, implementar o documentar, identifica el tipo de sol
 | Cambio de frontend y backend | `AGENTS.md`, `skill-vue.md` y `Python_FastAPI_Best_Practices_Skill.md` |
 | Documentación del frontend | `skill-documentacion.md` de frontend y la fuente funcional o técnica documentada |
 | Documentación del backend | `skill-documentacion.md` de backend y la fuente funcional o técnica documentada |
+| Auditoría de seguridad o salud técnica | `AGENTS.md`, `Python_FastAPI_Best_Practices_Skill.md` y `spec/skills/auditoria/SKILL.md` |
 | Crear roles | Especificación `fase_2_crear_roles.md` y las guías técnicas según las capas afectadas |
 | Administrar roles | Especificación `fase_administrar_roles.md` y las guías técnicas según las capas afectadas |
 | Alta de taller | Especificación `fase_taller_mecanico.md` y las guías técnicas según las capas afectadas |
