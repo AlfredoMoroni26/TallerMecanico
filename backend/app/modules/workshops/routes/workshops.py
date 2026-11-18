@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import DomainError
 from app.db.session import get_db
-from app.modules.identity.dependencies import require_roles
+from app.modules.identity.dependencies import get_current_user, require_roles
+from app.modules.identity.models import User
 from app.modules.workshops.models import Workshop
 from app.modules.workshops.schemas.workshop import LocationOption, PostalLookup, SettlementOption, WorkshopCreate, WorkshopRead
 from app.modules.workshops.services import postal_service, workshop_service
@@ -47,7 +48,7 @@ def postal_code(postal_code: str):
 async def create(
     name: str = Form(), rfc: str = Form(), contact_email: str = Form(), street_address: str = Form(),
     neighborhood: str = Form(), postal_code: str = Form(), state: str = Form(), municipality: str = Form(),
-    photo: UploadFile = File(), db: Session = Depends(get_db),
+    photo: UploadFile = File(), db: Session = Depends(get_db), user: User = Depends(get_current_user),
 ):
     try:
         data = WorkshopCreate.model_validate({
@@ -58,9 +59,16 @@ async def create(
         raise DomainError(error.errors()[0]["msg"], 422) from error
 
     workshop_service.ensure_not_duplicate(db, data)
+    if user.workshop_id:
+        raise DomainError("Tu cuenta ya tiene un taller asignado.", 409)
     photo_path = await save_workshop_photo(photo)
     try:
-        return workshop_service.create_workshop(db, data, photo_path)
+        workshop = workshop_service.create_workshop(db, data, photo_path)
+        # El personal que da de alta el taller queda asociado a él de inmediato.
+        user.workshop_id = workshop.id
+        db.commit()
+        db.refresh(workshop)
+        return workshop
     except IntegrityError as error:
         db.rollback()
         delete_photo(photo_path)
